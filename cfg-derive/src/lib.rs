@@ -49,7 +49,7 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
 
     let prefix = match derive_config_attr(attrs) {
         Some(p) => quote! {
-            impl FromConfigWithPrefix for #name {
+            impl ::cfg_rs::FromConfigWithPrefix for #name {
                 fn prefix() -> &'static str {
                     #p
                 }
@@ -59,11 +59,11 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
     };
 
     quote! {
-        impl FromConfig for #name {
+        impl  ::cfg_rs::FromConfig for #name {
             fn from_config(
-                context: &mut ConfigContext<'_>,
-                value: Option<ConfigValue<'_>>,
-            ) -> Result<Self, ConfigError> {
+                context: &mut ::cfg_rs::ConfigContext<'_>,
+                value: Option<::cfg_rs::ConfigValue<'_>>,
+            ) -> Result<Self, ::cfg_rs::ConfigError> {
                 Ok(#body)
             }
         }
