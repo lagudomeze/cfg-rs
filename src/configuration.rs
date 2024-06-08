@@ -580,14 +580,33 @@ impl PredefinedConfigurationBuilder {
     }
 }
 
-#[derive(Debug, FromConfig)]
-#[config(prefix = "app")]
+#[derive(Debug)]
 struct AppConfig {
-    #[config(default = "app")]
     name: String,
     dir: Option<String>,
     profile: Option<String>,
 }
+
+impl FromConfig for AppConfig {
+    fn from_config(
+        context: &mut ConfigContext<'_>,
+        value: Option<ConfigValue<'_>>,
+    ) -> Result<Self, ConfigError> {
+        Ok(Self {
+            name: context.parse_config("name", Some("app".into()))?,
+            dir: context.parse_config("dir", None)?,
+            profile: context.parse_config("profile", None)?,
+        })
+    }
+}
+
+impl FromConfigWithPrefix for AppConfig {
+    fn prefix() -> &'static str {
+        "app"
+    }
+}
+
+
 
 /// Manually register key value to [`Configuration`].
 #[allow(missing_debug_implementations)]
