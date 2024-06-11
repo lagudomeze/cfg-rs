@@ -22,7 +22,7 @@ pub(crate) mod memory;
 pub(crate) mod random;
 
 #[allow(dead_code)]
-#[derive(Debug, FromConfig)]
+#[derive(Debug, cfg_derive::FromConfig)]
 pub(crate) struct EnabledOption {
     #[config(default = true)]
     pub(crate) enabled: bool,
@@ -37,7 +37,7 @@ $(
 pub mod $nm;
 )+
 
-#[derive(Debug, FromConfig)]
+#[derive(Debug, cfg_derive::FromConfig)]
 #[config(prefix = "app.sources")]
 pub(crate) struct SourceOption {
     #[cfg(feature = "rand")]
