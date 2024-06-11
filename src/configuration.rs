@@ -590,7 +590,7 @@ struct AppConfig {
 impl FromConfig for AppConfig {
     fn from_config(
         context: &mut ConfigContext<'_>,
-        value: Option<ConfigValue<'_>>,
+        _value: Option<ConfigValue<'_>>,
     ) -> Result<Self, ConfigError> {
         Ok(Self {
             name: context.parse_config("name", Some("app".into()))?,

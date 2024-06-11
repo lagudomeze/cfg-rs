@@ -17,9 +17,9 @@
 )]
 
 use proc_macro2::Span;
-use quote::{__private::TokenStream, quote, quote_spanned};
+use proc_macro_crate::{crate_name, FoundCrate};
+use quote::{__private::TokenStream, quote};
 use syn::*;
-use syn::spanned::Spanned;
 
 #[allow(missing_docs)]
 #[proc_macro_derive(FromConfig, attributes(config))]
@@ -50,9 +50,24 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
         }
     };
 
+    let crate_path = match crate_name("cfg-rs") {
+        Ok(found_crate) => {
+            match found_crate {
+                FoundCrate::Itself => quote!( crate ),
+                FoundCrate::Name(name) => {
+                    let ident = Ident::new(&name, Span::call_site());
+                    quote!( #ident )
+                }
+            }
+        }
+        Err(err) => {
+            return Error::new(Span::call_site(), err.to_string()).to_compile_error().into();
+        }
+    };
+
     let prefix = match derive_config_attr(attrs) {
         Some(p) => quote! {
-            impl FromConfigWithPrefix for #name {
+            impl #crate_path::FromConfigWithPrefix for #name {
                 fn prefix() -> &'static str {
                     #p
                 }
@@ -62,11 +77,11 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
     };
 
     quote! {
-        impl  FromConfig for #name {
+        impl #crate_path::FromConfig for #name {
             fn from_config(
-                context: &mut ConfigContext<'_>,
-                value: Option<ConfigValue<'_>>,
-            ) -> Result<Self, ConfigError> {
+                context: &mut #crate_path::ConfigContext<'_>,
+                value: Option<#crate_path::ConfigValue<'_>>,
+            ) -> Result<Self, #crate_path::ConfigError> {
                 Ok(#body)
             }
         }
