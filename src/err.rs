@@ -1,6 +1,7 @@
-use crate::*;
 use std::error::Error;
 use std::path::PathBuf;
+
+use crate::*;
 
 /// Configuration Error.
 #[derive(Debug)]
@@ -26,10 +27,10 @@ pub enum ConfigError {
     /// Lock failed.
     LockPoisoned,
     /// Config parse error with other error.
-    ConfigCause(Box<dyn Error + 'static>),
+    ConfigCause(Box<dyn Error + 'static + Send + Sync>),
 }
 
-impl<E: Error + 'static> From<E> for ConfigError {
+impl<E: Error + 'static + Send + Sync> From<E> for ConfigError {
     #[inline]
     fn from(e: E) -> Self {
         ConfigError::ConfigCause(Box::new(e))

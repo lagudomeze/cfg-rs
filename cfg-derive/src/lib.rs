@@ -15,8 +15,11 @@
     unused_qualifications,
     variant_size_differences
 )]
-use quote::{__private::TokenStream, quote};
+
+use proc_macro2::Span;
+use quote::{__private::TokenStream, quote, quote_spanned};
 use syn::*;
+use syn::spanned::Spanned;
 
 #[allow(missing_docs)]
 #[proc_macro_derive(FromConfig, attributes(config))]
@@ -49,7 +52,7 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
 
     let prefix = match derive_config_attr(attrs) {
         Some(p) => quote! {
-            impl ::cfg_rs::FromConfigWithPrefix for #name {
+            impl FromConfigWithPrefix for #name {
                 fn prefix() -> &'static str {
                     #p
                 }
@@ -59,11 +62,11 @@ fn derive_config_struct(name: &Ident, attrs: Vec<Attribute>, data: DataStruct) -
     };
 
     quote! {
-        impl  ::cfg_rs::FromConfig for #name {
+        impl  FromConfig for #name {
             fn from_config(
-                context: &mut ::cfg_rs::ConfigContext<'_>,
-                value: Option<::cfg_rs::ConfigValue<'_>>,
-            ) -> Result<Self, ::cfg_rs::ConfigError> {
+                context: &mut ConfigContext<'_>,
+                value: Option<ConfigValue<'_>>,
+            ) -> Result<Self, ConfigError> {
                 Ok(#body)
             }
         }
@@ -86,7 +89,7 @@ fn derive_config_attr(attrs: Vec<Attribute>) -> Option<String> {
                     Err(meta.error("Only support prefix"))
                 }
             })
-            .unwrap();
+                .unwrap();
         }
         if prefix.is_some() {
             break;
@@ -140,7 +143,7 @@ fn derive_config_field_attr(f: &mut FieldInfo, attrs: Vec<Attribute>) {
                 }
                 Ok(())
             })
-            .unwrap();
+                .unwrap();
         }
     }
 }
